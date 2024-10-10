@@ -28,7 +28,7 @@ io.sockets.on('connection', async ( socket ) => {
   io.emit( 'checkWhosOnline', listUsers )
 
   // Emit message to all saying that an user has connected
-  io.emit( 'userConnected', userName + ' has connected ' );
+  io.emit( 'userConnected', userName );
 
   // Update camera for all session users but the sender
   socket.on( 'updateCamera', ( msg ) => {
@@ -40,6 +40,16 @@ io.sockets.on('connection', async ( socket ) => {
     socket.broadcast.emit( 'createCamera', msg );
   });
   
+  // Emit Morph Values
+  socket.on( 'onSliderMorphChange', ( morphTarget, value ) => {
+    socket.broadcast.emit( 'onSliderMorphChange', morphTarget, value );
+  });
+
+  // Emit Object Morph Change
+  socket.on( 'onObjectMorphChange', ( value ) => {
+    socket.broadcast.emit( 'onObjectMorphChange', value );
+  });
+
   // Disconnect 
   socket.on( 'disconnect', async () => {
     console.log( userName + ' has disconnected' );
