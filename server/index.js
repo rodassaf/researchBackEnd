@@ -50,6 +50,31 @@ io.sockets.on('connection', async ( socket ) => {
     socket.broadcast.emit( 'onObjectMorphChange', value );
   });
 
+  // Emit On Loop Change
+  socket.on( 'onLoopChange', ( value ) => {
+    socket.broadcast.emit( 'onLoopChange', value );
+  });
+
+  // Emit Loop Change
+  socket.on( 'onClipChange', ( value ) => {
+    socket.broadcast.emit( 'onClipChange', value );
+  });
+
+  // Emit Play
+  socket.on( 'play', () => {
+    socket.broadcast.emit( 'play' );
+  });
+
+  // Emit Play
+  socket.on( 'restart', () => {
+    socket.broadcast.emit( 'restart' );
+  });
+
+  // Emit Stop
+  socket.on( 'stop', () => {
+    socket.broadcast.emit( 'stop' );
+  });
+
   // Disconnect 
   socket.on( 'disconnect', async () => {
     console.log( userName + ' has disconnected' );
