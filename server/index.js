@@ -86,6 +86,6 @@ io.sockets.on('connection', async ( socket ) => {
   });
 });
   
-server.listen( PORT, () => {
+server.listen( PORT, '0.0.0.0', () => {
 console.log( 'listening on *:3000' );
 });
