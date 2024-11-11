@@ -1,13 +1,21 @@
-const express = require('express');
+const express = require( 'express' );
 const app = express();
-const http = require('http');
+const http = require( 'http' ) ;
 const PORT = process.env.PORT || 3000;
-const server = http.createServer(app);
-const { Server } = require("socket.io");
-const io = new Server(server);
+
+const server = http.createServer( app );
+const { Server } = require( "socket.io" );
+//const io = new Server( server );
+
+// Attention to this. CHANGE THE ORIGIN for production
+const io = require( 'socket.io' )( server, {
+  cors: {
+    origin: "*",
+  }
+}); 
 
 app.get('/', ( req, res ) => {
-  res.send('<h1>Hello world</h1>');
+  res.send( '<h1>Hello world</h1>' );
 });
 
 io.sockets.on('connection', async ( socket ) => {
