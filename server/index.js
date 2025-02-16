@@ -63,7 +63,7 @@ io.sockets.on('connection', async ( socket ) => {
     socket.broadcast.emit( 'onLoopChange', value );
   });
 
-  // Emit Loop Change
+  // Emit Clip Change
   socket.on( 'onClipChange', ( value ) => {
     socket.broadcast.emit( 'onClipChange', value );
   });
@@ -73,7 +73,7 @@ io.sockets.on('connection', async ( socket ) => {
     socket.broadcast.emit( 'play' );
   });
 
-  // Emit Play
+  // Emit Restart
   socket.on( 'restart', () => {
     socket.broadcast.emit( 'restart' );
   });
