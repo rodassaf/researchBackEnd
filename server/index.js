@@ -78,6 +78,11 @@ io.sockets.on('connection', async ( socket ) => {
     socket.broadcast.emit( 'restart' );
   });
 
+  // Emit Grabbing Timeline
+  socket.on( 'grabbing', ( value ) => {
+    socket.broadcast.emit( 'grabbing', value );
+  });
+
   // Emit Stop
   socket.on( 'stop', () => {
     socket.broadcast.emit( 'stop' );
