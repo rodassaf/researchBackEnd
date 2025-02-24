@@ -49,8 +49,8 @@ io.sockets.on('connection', async ( socket ) => {
   });
   
   // Emit Morph Values
-  socket.on( 'onSliderMorphChange', ( morphTarget, value ) => {
-    socket.broadcast.emit( 'onSliderMorphChange', morphTarget, value );
+  socket.on( 'onSliderMorphChange', ( object, morphTarget, value ) => {
+    socket.broadcast.emit( 'onSliderMorphChange', object, morphTarget, value );
   });
 
   // Emit Object Morph Change
