@@ -69,13 +69,13 @@ io.sockets.on('connection', async ( socket ) => {
   });
 
   // Emit Play
-  socket.on( 'play', () => {
-    socket.broadcast.emit( 'play' );
+  socket.on( 'play', ( clip, time, loop ) => {
+    socket.broadcast.emit( 'play', clip, time, loop );
   });
 
   // Emit Restart
-  socket.on( 'restart', () => {
-    socket.broadcast.emit( 'restart' );
+  socket.on( 'restart', ( clip, loop ) => {
+    socket.broadcast.emit( 'restart', clip, loop );
   });
 
   // Emit Grabbing Timeline
