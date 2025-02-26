@@ -64,13 +64,18 @@ io.sockets.on('connection', async ( socket ) => {
   });
 
   // Emit Clip Change
-  socket.on( 'onClipChange', ( value ) => {
+  socket.on( 'onClipChange', ( value, user ) => {
     socket.broadcast.emit( 'onClipChange', value );
   });
 
   // Emit Play
-  socket.on( 'play', ( clip, time, loop ) => {
+  socket.on( 'play', ( clip, time, loop, user ) => {
     socket.broadcast.emit( 'play', clip, time, loop );
+  });
+
+  // Emit Play Followed user
+  socket.on( 'timelineUserFollow', ( user, progress, clip ) => {
+    socket.broadcast.emit( 'timelineUserFollow', user, progress, clip );
   });
 
   // Emit Restart
@@ -79,7 +84,7 @@ io.sockets.on('connection', async ( socket ) => {
   });
 
   // Emit Grabbing Timeline
-  socket.on( 'grabbing', ( value ) => {
+  socket.on( 'grabbing', ( value, user ) => {
     socket.broadcast.emit( 'grabbing', value );
   });
 
