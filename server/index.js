@@ -43,6 +43,11 @@ io.sockets.on('connection', async ( socket ) => {
     socket.broadcast.emit( 'updateCamera', msg )
   });
 
+  // Update XRcamera for all session users but the sender
+  socket.on( 'updateXRCamera', ( msg ) => {
+    socket.broadcast.emit( 'updateXRCamera', msg )
+  });
+
   // Create camera for all session users but the sender
   socket.on( 'createCamera', ( msg ) => {
     socket.broadcast.emit( 'createCamera', msg );
