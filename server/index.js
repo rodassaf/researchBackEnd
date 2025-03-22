@@ -83,6 +83,11 @@ io.sockets.on('connection', async ( socket ) => {
     socket.broadcast.emit( 'timelineUserFollow', user, progress, clip );
   });
 
+  // Emit camera from Followed user
+  socket.on( 'cameraUserFollow', ( user, cameraPosition, cameraRotation ) => {
+    socket.broadcast.emit( 'cameraUserFollow', user, cameraPosition, cameraRotation );
+  });
+
   // Emit Restart
   socket.on( 'restart', ( clip, loop ) => {
     socket.broadcast.emit( 'restart', clip, loop );
