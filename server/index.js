@@ -12,7 +12,7 @@ const io = require( 'socket.io' )( server, {
   cors: {
     origin: "*",
   }
-}); 
+});
 
 app.get('/', ( req, res ) => {
   res.send( '<h1>Hello world</h1>' );
@@ -69,10 +69,15 @@ io.sockets.on('connection', async ( socket ) => {
   });
 
   // Emit Clip Change
-  socket.on( 'onClipChange', ( value, user ) => {
-    socket.broadcast.emit( 'onClipChange', value );
+  socket.on( 'onClipChange', ( value, sync, user ) => {
+    socket.broadcast.emit( 'onClipChange', value, sync, user );
   });
 
+  // Emit Ask Sync
+  socket.on( 'askSync', ( user, sync, progress ) => {
+    socket.broadcast.emit( 'askSync', user, sync, progress );
+  });
+  
   // Emit Play
   socket.on( 'play', ( clip, time, loop, user ) => {
     socket.broadcast.emit( 'play', clip, time, loop );
@@ -94,8 +99,8 @@ io.sockets.on('connection', async ( socket ) => {
   });
 
   // Emit Grabbing Timeline
-  socket.on( 'grabbing', ( value, user ) => {
-    socket.broadcast.emit( 'grabbing', value );
+  socket.on( 'grabbing', ( value, progress, sync, user ) => {
+    socket.broadcast.emit( 'grabbing', value, progress, sync, user );
   });
 
   // Emit Stop
