@@ -77,6 +77,11 @@ io.sockets.on('connection', async ( socket ) => {
   socket.on( 'askSync', ( user, sync, progress ) => {
     socket.broadcast.emit( 'askSync', user, sync, progress );
   });
+
+  // Emit Ask Clip
+  socket.on( 'askClip', ( clip, user ) => {
+    socket.broadcast.emit( 'askClip', clip, user );
+  });
   
   // Emit Play
   socket.on( 'play', ( clip, time, loop, user ) => {
@@ -99,8 +104,8 @@ io.sockets.on('connection', async ( socket ) => {
   });
 
   // Emit Grabbing Timeline
-  socket.on( 'grabbing', ( value, progress, sync, user ) => {
-    socket.broadcast.emit( 'grabbing', value, progress, sync, user );
+  socket.on( 'grabbing', ( value, progress, sync, user, clip ) => {
+    socket.broadcast.emit( 'grabbing', value, progress, sync, user, clip );
   });
 
   // Emit Stop
