@@ -89,8 +89,8 @@ io.sockets.on('connection', async ( socket ) => {
   });
 
   // Emit Play Followed user
-  socket.on( 'timelineUserFollow', ( user, progress, clip ) => {
-    socket.broadcast.emit( 'timelineUserFollow', user, progress, clip );
+  socket.on( 'timelineUserFollow', ( user, currentFrame, clip ) => {
+    socket.broadcast.emit( 'timelineUserFollow', user, currentFrame, clip );
   });
 
   // Emit camera from Followed user
