@@ -78,9 +78,19 @@ io.sockets.on('connection', async ( socket ) => {
     socket.broadcast.emit( 'askSync', user, sync, progress );
   });
 
+  // Add Sync User
+  socket.on( 'addSyncUser', ( user, clip ) => {
+    socket.broadcast.emit( 'addSyncUser', user, clip );
+  });
+
+  // Remove Sync User
+  socket.on( 'removeSyncUser', ( user, clip ) => {
+    socket.broadcast.emit( 'removeSyncUser', user, clip );
+  });
+
   // Emit Ask Clip
-  socket.on( 'askClip', ( clip, user ) => {
-    socket.broadcast.emit( 'askClip', clip, user );
+  socket.on( 'askClip', ( clip, user, sync ) => {
+    socket.broadcast.emit( 'askClip', clip, user, sync );
   });
   
   // Emit Play
