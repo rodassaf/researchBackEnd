@@ -103,6 +103,16 @@ io.sockets.on('connection', async ( socket ) => {
     socket.broadcast.emit( 'timelineUserFollow', user, currentFrame, clip );
   });
 
+  // Emit line points
+  socket.on( 'lineUpdate', ( user, pointA, pointB ) => {
+    socket.broadcast.emit( 'lineUpdate', user, pointA, pointB );
+  });
+
+  // Remove line
+  socket.on( 'lineRemove', ( user ) => {
+    socket.broadcast.emit( 'lineRemove', user );
+  });
+
   // Emit camera from Followed user
   socket.on( 'cameraUserFollow', ( user, cameraPosition, cameraRotation ) => {
     socket.broadcast.emit( 'cameraUserFollow', user, cameraPosition, cameraRotation );
