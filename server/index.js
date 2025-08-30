@@ -52,6 +52,21 @@ io.sockets.on('connection', async ( socket ) => {
   socket.on( 'createCamera', ( msg ) => {
     socket.broadcast.emit( 'createCamera', msg );
   });
+
+  // Hide
+  socket.on( 'hide', ( user, followUser ) => {
+    socket.broadcast.emit( 'hide', user, followUser );
+  });
+
+  // Unhide
+  socket.on( 'unhide', ( user, followUser ) => {
+    socket.broadcast.emit( 'unhide', user, followUser );
+  });
+
+  // getAll Users Camera
+  socket.on( 'getAllCamera', ( user ) => {
+    socket.broadcast.emit( 'getAllCamera', user );
+  });
   
   // Emit Morph Values
   socket.on( 'onSliderMorphChange', ( object, morphTarget, value ) => {
@@ -111,11 +126,6 @@ io.sockets.on('connection', async ( socket ) => {
   // Remove line
   socket.on( 'lineRemove', ( user ) => {
     socket.broadcast.emit( 'lineRemove', user );
-  });
-
-  // Emit camera from Followed user
-  socket.on( 'cameraUserFollow', ( user, cameraPosition, cameraRotation ) => {
-    socket.broadcast.emit( 'cameraUserFollow', user, cameraPosition, cameraRotation );
   });
 
   // Emit Restart
