@@ -69,13 +69,13 @@ io.sockets.on('connection', async ( socket ) => {
   });
   
   // Emit Morph Values
-  socket.on( 'onSliderMorphChange', ( object, morphTarget, value ) => {
-    socket.broadcast.emit( 'onSliderMorphChange', object, morphTarget, value );
+  socket.on( 'onSliderMorphChange', ( user, object, morphTarget, value ) => {
+    socket.broadcast.emit( 'onSliderMorphChange', user, object, morphTarget, value );
   });
 
   // Emit Object Morph Change
-  socket.on( 'onObjectMorphChange', ( value ) => {
-    socket.broadcast.emit( 'onObjectMorphChange', value );
+  socket.on( 'onObjectMorphChange', ( user, value ) => {
+    socket.broadcast.emit( 'onObjectMorphChange', user, value );
   });
 
   // Emit On Loop Change
@@ -110,7 +110,7 @@ io.sockets.on('connection', async ( socket ) => {
   
   // Emit Play
   socket.on( 'play', ( clip, time, loop, user ) => {
-    socket.broadcast.emit( 'play', clip, time, loop );
+    socket.broadcast.emit( 'play', clip, time, loop, user );
   });
 
   // Emit Play Followed user
