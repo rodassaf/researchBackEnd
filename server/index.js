@@ -1,5 +1,6 @@
 const express = require( 'express' );
 const app = express();
+const fs = require("fs/promises");
 const http = require( 'http' ) ;
 const PORT = process.env.PORT || 3000;
 
@@ -18,11 +19,38 @@ app.get('/', ( req, res ) => {
   res.send( '<h1>Hello world</h1>' );
 });
 
+async function updateJson( user, prop ) {
+  const file = await fs.readFile( user + ".json", "utf8" );
+  const data = JSON.parse( file );
+
+  data[prop] = ( data[prop] || 0 ) + 1;
+  
+  await fs.writeFile(
+    user + ".json",
+    JSON.stringify(data, null, 2)
+  );
+}
+
 io.sockets.on('connection', async ( socket ) => {
 
   // Grab user name from socket
   var userName = socket.handshake.query.userName;
   console.log( userName + ' has connected' )
+
+  // Create JSON file
+  const initialData = {
+    user: userName,
+    grabFrames: 0,
+    playPause: 0,
+    restart: 0,
+    stop: 0,
+    clipChanges: 0
+  };
+
+  await fs.writeFile(
+    userName + ".json",
+    JSON.stringify(initialData, null, 2)
+  );
 
   // Function to grab existing users - returns array
   let sockets =  await io.fetchSockets();
@@ -85,6 +113,7 @@ io.sockets.on('connection', async ( socket ) => {
 
   // Emit Clip Change
   socket.on( 'onClipChange', ( value, sync, user ) => {
+    updateJson( user, "clipChanges" );
     socket.broadcast.emit( 'onClipChange', value, sync, user );
   });
 
@@ -110,7 +139,13 @@ io.sockets.on('connection', async ( socket ) => {
   
   // Emit Play
   socket.on( 'play', ( clip, time, loop, user ) => {
+    updateJson( user, "playPause" );
     socket.broadcast.emit( 'play', clip, time, loop, user );
+  });
+
+  // Emit Play - Just for getting stats
+  socket.on( 'AsyncPlay', ( user ) => {
+    updateJson( user, "playPause" );
   });
 
   // Emit Play Followed user
@@ -129,18 +164,31 @@ io.sockets.on('connection', async ( socket ) => {
   });
 
   // Emit Restart
-  socket.on( 'restart', ( clip, loop ) => {
+  socket.on( 'restart', ( clip, loop, user ) => {
+    updateJson( user, "restart" );
     socket.broadcast.emit( 'restart', clip, loop );
+  });
+
+  // Emit Restart - Just for gettiong stats
+  socket.on( 'AsyncRestart', ( user ) => {
+    updateJson( user, "restart" );
   });
 
   // Emit Grabbing Timeline
   socket.on( 'grabbing', ( value, progress, sync, user, clip ) => {
+    updateJson( user, "grabFrames" );
     socket.broadcast.emit( 'grabbing', value, progress, sync, user, clip );
   });
 
   // Emit Stop
-  socket.on( 'stop', () => {
+  socket.on( 'stop', (user) => {
+    updateJson( user, "stop" );
     socket.broadcast.emit( 'stop' );
+  });
+
+    // Emit Stop - Just for getting stats
+  socket.on( 'AsyncStop', (user) => {
+    updateJson( user, "stop" );
   });
 
   // Disconnect 
