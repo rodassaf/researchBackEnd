@@ -95,6 +95,11 @@ io.sockets.on('connection', async ( socket ) => {
   socket.on( 'getAllCamera', ( user ) => {
     socket.broadcast.emit( 'getAllCamera', user );
   });
+ 
+  // Follow user
+  socket.on( 'follow', ( user, followUser ) => {
+    socket.broadcast.emit( 'follow', user, followUser );
+  });
   
   // Emit Morph Values
   socket.on( 'onSliderMorphChange', ( user, object, morphTarget, value ) => {
