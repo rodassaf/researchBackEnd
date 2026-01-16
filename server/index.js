@@ -20,15 +20,26 @@ app.get('/', ( req, res ) => {
 });
 
 async function updateJson( user, prop ) {
-  const file = await fs.readFile( user + ".json", "utf8" );
-  const data = JSON.parse( file );
+  try {
+      const file = await fs.readFile(user + ".json", "utf8");
+      const data = JSON.parse(file);
 
-  data[prop] = ( data[prop] || 0 ) + 1;
-  
-  await fs.writeFile(
-    user + ".json",
-    JSON.stringify(data, null, 2)
-  );
+      data[prop] = (data[prop] || 0) + 1;
+
+      await fs.writeFile(
+        user + ".json",
+        JSON.stringify(data, null, 2)
+      );
+
+  } catch (err) {
+      if (err.code === "ENOENT") {
+        // File doesn't exist → just ignore and leave
+        return;
+      }
+
+      // Any OTHER error should still be thrown
+      throw err;
+  } 
 }
 
 io.sockets.on('connection', async ( socket ) => {
