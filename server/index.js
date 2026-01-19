@@ -21,15 +21,20 @@ app.get('/', ( req, res ) => {
 
 async function updateJson( user, prop ) {
   try {
-      const file = await fs.readFile(user + ".json", "utf8");
-      const data = JSON.parse(file);
+    const file = await fs.readFile(user + ".json", "utf8");
 
-      data[prop] = (data[prop] || 0) + 1;
+    if (!file || file.trim() === "") {
+      return;
+    }
+    
+    const data = JSON.parse(file);
 
-      await fs.writeFile(
-        user + ".json",
-        JSON.stringify(data, null, 2)
-      );
+    data[prop] = (data[prop] || 0) + 1;
+
+    await fs.writeFile(
+      user + ".json",
+      JSON.stringify(data, null, 2)
+    );
 
   } catch (err) {
       if (err.code === "ENOENT") {
@@ -123,8 +128,8 @@ io.sockets.on('connection', async ( socket ) => {
   });
 
   // Emit On Loop Change
-  socket.on( 'onLoopChange', ( value ) => {
-    socket.broadcast.emit( 'onLoopChange', value );
+  socket.on( 'onLoopChange', ( value, sync ) => {
+    socket.broadcast.emit( 'onLoopChange', value, sync );
   });
 
   // Emit Clip Change
@@ -165,8 +170,8 @@ io.sockets.on('connection', async ( socket ) => {
   });
 
   // Emit Play Followed user
-  socket.on( 'timelineUserFollow', ( user, currentFrame, clip ) => {
-    socket.broadcast.emit( 'timelineUserFollow', user, currentFrame, clip );
+  socket.on( 'timelineUserFollow', ( user, currentFrame, clip, sync ) => {
+    socket.broadcast.emit( 'timelineUserFollow', user, currentFrame, clip, sync );
   });
 
   // Emit line points
@@ -197,9 +202,9 @@ io.sockets.on('connection', async ( socket ) => {
   });
 
   // Emit Stop
-  socket.on( 'stop', (user) => {
+  socket.on( 'stop', (user, sync) => {
     updateJson( user, "stop" );
-    socket.broadcast.emit( 'stop' );
+    socket.broadcast.emit( 'stop', sync );
   });
 
     // Emit Stop - Just for getting stats
