@@ -7,6 +7,10 @@ const PORT = process.env.PORT || 3000;
 const server = http.createServer( app );
 const { Server } = require( "socket.io" );
 //const io = new Server( server );
+const LOG_FILE = "./eventLog.jsonl"
+
+//Buffer updates. 
+const buffer = []
 
 // Attention to this. CHANGE THE ORIGIN for production
 const io = require( 'socket.io' )( server, {
@@ -19,22 +23,20 @@ app.get('/', ( req, res ) => {
   res.send( '<h1>Hello world</h1>' );
 });
 
-async function updateJson( user, prop ) {
+/* async function updateJson( user, eventType, value ) {
   try {
-    const file = await fs.readFile(user + ".json", "utf8");
-
-    if (!file || file.trim() === "") {
-      return;
-    }
     
-    const data = JSON.parse(file);
+    const event = {
+      user: user,
+      event: eventType,
+      value: value,
+      timeStamp: Date.now()
+    };
 
-    data[prop] = (data[prop] || 0) + 1;
-
-    await fs.writeFile(
-      user + ".json",
-      JSON.stringify(data, null, 2)
-    );
+    await fs.appendFile(
+      LOG_FILE,
+      JSON.stringify( event ) + "\n"
+    )
 
   } catch (err) {
       if (err.code === "ENOENT") {
@@ -45,28 +47,31 @@ async function updateJson( user, prop ) {
       // Any OTHER error should still be thrown
       throw err;
   } 
-}
+} */
+
+// Function to flush camera events every 2 seconds. 
+// This is to avoid writing to the file system too often, which can be a performance bottleneck.
+setInterval( async () => {
+
+  if ( buffer.length === 0 ) return
+
+  const eventsToWrite = buffer.splice(0)
+
+  const lines = eventsToWrite
+    .map(e => JSON.stringify(e))
+    .join("\n") + "\n"
+
+  await fs.appendFile("eventLog.jsonl", lines)
+
+  //console.log(`Flushed ${eventsToWrite.length} camera events`)
+
+}, 2000)
 
 io.sockets.on('connection', async ( socket ) => {
 
   // Grab user name from socket
   var userName = socket.handshake.query.userName;
   console.log( userName + ' has connected' )
-
-  // Create JSON file
-  const initialData = {
-    user: userName,
-    grabFrames: 0,
-    playPause: 0,
-    restart: 0,
-    stop: 0,
-    clipChanges: 0
-  };
-
-  await fs.writeFile(
-    userName + ".json",
-    JSON.stringify(initialData, null, 2)
-  );
 
   // Function to grab existing users - returns array
   let sockets =  await io.fetchSockets();
@@ -84,11 +89,23 @@ io.sockets.on('connection', async ( socket ) => {
 
   // Update camera for all session users but the sender
   socket.on( 'updateCamera', ( msg ) => {
+    buffer.push({
+      user: msg.userName,
+      event: "cameraMove",
+      value: [ msg.x, msg.y, msg.z, msg.lx, msg.ly, msg.lz ],
+      timeStamp: Date.now()
+    })
     socket.broadcast.emit( 'updateCamera', msg )
   });
 
   // Update XRcamera for all session users but the sender
   socket.on( 'updateXRCamera', ( msg ) => {
+    buffer.push({
+      user: msg.userName,
+      event: "cameraMoveXR",
+      value: [ msg.pos.x, msg.pos.y, msg.pos.z, msg.rot[0], msg.rot[1], msg.rot[2] ],
+      timeStamp: Date.now()
+    })
     socket.broadcast.emit( 'updateXRCamera', msg )
   });
 
@@ -134,7 +151,13 @@ io.sockets.on('connection', async ( socket ) => {
 
   // Emit Clip Change
   socket.on( 'onClipChange', ( value, sync, user ) => {
-    updateJson( user, "clipChanges" );
+    //updateJson( user, "clipChanges", value );
+    buffer.push({
+      user: user,
+      event: "clipChanges",
+      value: value,
+      timeStamp: Date.now()
+    })
     socket.broadcast.emit( 'onClipChange', value, sync, user );
   });
 
@@ -160,13 +183,25 @@ io.sockets.on('connection', async ( socket ) => {
   
   // Emit Play
   socket.on( 'play', ( clip, time, loop, user ) => {
-    updateJson( user, "playPause" );
+    //updateJson( user, "playPause", clip );
+    buffer.push({
+      user: user,
+      event: "playPause",
+      value: clip,
+      timeStamp: Date.now()
+    })   
     socket.broadcast.emit( 'play', clip, time, loop, user );
   });
 
   // Emit Play - Just for getting stats
   socket.on( 'AsyncPlay', ( user ) => {
-    updateJson( user, "playPause" );
+    //updateJson( user, "playPause", "async" );
+    buffer.push({
+      user: user,
+      event: "playPause",
+      value: "async",
+      timeStamp: Date.now()
+    })   
   });
 
   // Emit Play Followed user
@@ -186,30 +221,60 @@ io.sockets.on('connection', async ( socket ) => {
 
   // Emit Restart
   socket.on( 'restart', ( clip, loop, user ) => {
-    updateJson( user, "restart" );
+    //updateJson( user, "restart", clip );
+    buffer.push({
+      user: user,
+      event: "restart",
+      value: clip,
+      timeStamp: Date.now()
+    })   
     socket.broadcast.emit( 'restart', clip, loop );
   });
 
   // Emit Restart - Just for gettiong stats
   socket.on( 'AsyncRestart', ( user ) => {
-    updateJson( user, "restart" );
+    //updateJson( user, "restart", "async" );
+    buffer.push({
+      user: user,
+      event: "restart",
+      value: "async",
+      timeStamp: Date.now()
+    })   
   });
 
   // Emit Grabbing Timeline
   socket.on( 'grabbing', ( value, progress, sync, user, clip ) => {
-    updateJson( user, "grabFrames" );
+    //updateJson( user, "grabFrames", value );
+    buffer.push({
+      user: user,
+      event: "grabFrames",
+      value: value,
+      timeStamp: Date.now()
+    })   
     socket.broadcast.emit( 'grabbing', value, progress, sync, user, clip );
   });
 
   // Emit Stop
   socket.on( 'stop', (user, sync) => {
-    updateJson( user, "stop" );
+    //updateJson( user, "stop", "sync" );
+    buffer.push({
+      user: user,
+      event: "stop",
+      value: "sync",
+      timeStamp: Date.now()
+    })
     socket.broadcast.emit( 'stop', sync );
   });
 
     // Emit Stop - Just for getting stats
   socket.on( 'AsyncStop', (user) => {
-    updateJson( user, "stop" );
+    //updateJson( user, "stop", "async" );
+    buffer.push({
+      user: user,
+      event: "stop",
+      value: "async",
+      timeStamp: Date.now()
+    })
   });
 
   // Disconnect 
