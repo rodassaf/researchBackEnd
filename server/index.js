@@ -14,6 +14,7 @@ const buffer = []
 
 // Attention to this. CHANGE THE ORIGIN for production
 const io = require( 'socket.io' )( server, {
+  transports: ["websocket"],
   cors: {
     origin: "*",
   }
@@ -255,7 +256,7 @@ io.sockets.on('connection', async ( socket ) => {
   });
 
   // Emit Stop
-  socket.on( 'stop', (user, sync) => {
+  socket.on( 'stop', (user, sync, frame) => {
     //updateJson( user, "stop", "sync" );
     buffer.push({
       user: user,
@@ -263,7 +264,7 @@ io.sockets.on('connection', async ( socket ) => {
       value: "sync",
       timeStamp: Date.now()
     })
-    socket.broadcast.emit( 'stop', sync );
+    socket.broadcast.emit( 'stop', user, sync, frame );
   });
 
     // Emit Stop - Just for getting stats
